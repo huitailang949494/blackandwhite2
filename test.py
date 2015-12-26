@@ -29,7 +29,7 @@ class Board:
 		for x in range(8):
 			self.array.append([])
 			for y in range(8):
-				self.array[x].append(None)
+				self.array[x].append('o')
 
 		#Initializing center values
 		self.array[3][3]="w"
@@ -56,7 +56,8 @@ class Board:
 					screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile {0}-{1}".format(x,y),fill="#111",outline="#111")
 		#Animation of new tiles
 		screen.update()
-		
+		if var.player_type == 2:
+			return
 		for x in range(8):
 			for y in range(8):
 				#Could replace the circles with images later, if I want
@@ -135,7 +136,7 @@ class Board:
 		else:
 			self.oldarray[x][y]='b';
 		self.array = move(self.array,x,y)
-		
+		var.realarray = self.array
 		#Switch Player
 		self.player = 1-self.player
 		self.update()
@@ -212,7 +213,7 @@ def move(passedArray,x,y):
 	neighbours = []
 	for i in range(max(0,x-1),min(x+2,8)):
 		for j in range(max(0,y-1),min(y+2,8)):
-			if array[i][j]!=None:
+			if array[i][j]!='o':
 				neighbours.append([i,j])
 	
 	#Which tiles to convert
@@ -240,7 +241,7 @@ def move(passedArray,x,y):
 				path.append([tempX,tempY])
 				value = array[tempX][tempY]
 				#If we reach a blank tile, we're done and there's no line
-				if value==None:
+				if value=='o':
 					break
 				#If we reach a tile of the player's colour, a line is formed
 				if value==colour:
@@ -305,7 +306,7 @@ def valid(array,player,x,y):
 		colour="b"
 		
 	#If there's already a piece there, it's an invalid move
-	if array[x][y]!=None:
+	if array[x][y]!='o':
 		return False
 
 	else:
@@ -314,7 +315,7 @@ def valid(array,player,x,y):
 		neighbours = []
 		for i in range(max(0,x-1),min(x+2,8)):
 			for j in range(max(0,y-1),min(y+2,8)):
-				if array[i][j]!=None:
+				if array[i][j]!='o':
 					neighbour=True
 					neighbours.append([i,j])
 		#If there's no neighbours, it's an invalid move
@@ -341,7 +342,7 @@ def valid(array,player,x,y):
 
 					while 0<=tempX<=7 and 0<=tempY<=7:
 						#If an empty space, no line is formed
-						if array[tempX][tempY]==None:
+						if array[tempX][tempY]=='o':
 							break
 						#If it reaches a piece of the player's colour, it forms a line
 						if array[tempX][tempY]==colour:
@@ -362,13 +363,17 @@ def clickHandle(event):
 		
 		if xMouse<=50 and yMouse<=50:
 				#print 'hehe'
-				newarr = []
+				data = 'Click'+' '+str(var.player_room_id) + ' ' + str(var.player_type)
+				udpCliSock.sendto(data,ADDR)
+
+				newarr = [['o'for i in range(8)] for j in range(8)]
 				data,addr =udpCliSock.recvfrom(BUFSIZE)
-				str1 = data.split
+				str1 = data.split()
+				print str1
 				i = 0
 				for x in range(8):
 					for y in range(8):
-						newar[x][y] = str1[i]
+						newarr[x][y] = str1[i]
 						i += 1
 
 				board.update_screen(newarr)
@@ -385,22 +390,29 @@ def clickHandle(event):
 			y = string.atoi(str1[1])
 			print x,y
 			board.boardMove(x,y)
-
+			var.player_turn = 0
 		else:
 			#Is it the player's turn?
 			#if board.player==0:
 				#Delete the highlights
+
 				x = int((event.x-50)/50)
 				y = int((event.y-50)/50)
 
 				#Determine the grid index for where the mouse was clicked
-				
+				print var.player_turn
 				#If the click is inside the bounds and the move is valid, move to that location
 				if 0<=x<=7 and 0<=y<=7:
 					if valid(board.array,board.player,x,y):
-						data = 'Click'+' '+str(var.player_room_id) + ' ' + str(var.player_type) + ' ' + str(x)+ ' ' + str(y)
-						udpCliSock.sendto(data,ADDR)
-						board.boardMove(x,y)
+						if (var.player_turn==0):						
+							var.player_turn= 1
+							board.boardMove(x,y)
+							data = 'Click'+' '+str(var.player_room_id) + ' ' + str(var.player_type) + ' ' + str(x)+ ' ' + str(y)
+							for i in range(8):
+								for j in range(8):
+									data += ' ' + var.realarray[i][j]
+							udpCliSock.sendto(data,ADDR)
+							
 
 def keyHandle(event):
 	symbol = event.keysym

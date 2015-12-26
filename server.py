@@ -57,17 +57,22 @@ while True:
 				udpSerSock.sendto(data,add0[player_room_id])
 			else:
 				udpSerSock.sendto(data,add1[player_room_id])
-			if (player_type == 0):
-				maparray[player_room_id][x][y] = 'w'
-			else:
-				maparray[player_room_id][x][y] = 'b'
+			i = 5
+			for x in range(8):
+				for y in range(8):
+					maparray[player_room_id][x][y] = str1[i]
+					i +=1
+					print maparray[player_room_id][x][y]
+				print ''
 		else:
 			print player_room_id
 			data=''
 			for x in range(8):
 				for y in range(8):
 					data = data + maparray[player_room_id][x][y] + ' '
-			print data
+					print maparray[player_room_id][x][y]
+				print ''
+			#print data
 			udpSerSock.sendto(data,addr)
 
 udpSerSock.close()
