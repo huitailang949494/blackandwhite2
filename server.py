@@ -18,7 +18,7 @@ udpSerSock.bind(ADDR)
 room_cnt = [0,0,0,0,0,0,0,0,0,0]
 add0 =[0,0,0,0,0,0,0,0,0,0]
 add1 =[0,0,0,0,0,0,0,0,0,0]
-maparray = [[[None for z in range(10)] for i in range(8)] for j in range(8)]
+maparray = [[['o' for z in range(10)] for i in range(8)] for j in range(8)]
 ##
 
 
@@ -53,13 +53,16 @@ while True:
 			data = str1[3] + ' ' + str1[4]
 			x = string.atoi(str1[3])
 			y = string.atoi(str1[4])
-			udpSerSock.sendto(data,add0[player_room_id])
-			udpSerSock.sendto(data,add1[player_room_id])
+			if player_type == 1:
+				udpSerSock.sendto(data,add0[player_room_id])
+			else:
+				udpSerSock.sendto(data,add1[player_room_id])
 			if (player_type == 0):
 				maparray[player_room_id][x][y] = 'w'
 			else:
 				maparray[player_room_id][x][y] = 'b'
 		else:
+			print player_room_id
 			data=''
 			for x in range(8):
 				for y in range(8):

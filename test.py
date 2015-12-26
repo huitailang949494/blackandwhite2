@@ -56,7 +56,7 @@ class Board:
 					screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile {0}-{1}".format(x,y),fill="#111",outline="#111")
 		#Animation of new tiles
 		screen.update()
-		'''
+		
 		for x in range(8):
 			for y in range(8):
 				#Could replace the circles with images later, if I want
@@ -106,7 +106,7 @@ class Board:
 					screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile",fill="#000",outline="#000")
 					screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile",fill="#111",outline="#111")
 					screen.update()
-		'''
+		
 		#Drawing of highlight circles
 		for x in range(8):
 			for y in range(8):
@@ -357,10 +357,13 @@ def clickHandle(event):
 	global depth
 	xMouse = event.x
 	yMouse = event.y
+	print var.player_type
 	if var.player_type == 2:
+		
 		if xMouse<=50 and yMouse<=50:
-				print 'hehe'
+				#print 'hehe'
 				newarr = []
+				data,addr =udpCliSock.recvfrom(BUFSIZE)
 				str1 = data.split
 				i = 0
 				for x in range(8):
@@ -376,24 +379,12 @@ def clickHandle(event):
 			root.destroy()
 		elif xMouse<=50 and yMouse<=50:
 			#playGame()
-
-			if var.player_type != 2:
-				data,addr =udpCliSock.recvfrom(BUFSIZE)
-				str1 = data.split()
-				x = string.atoi(str1[0])
-				y = string.atoi(str1[1])
-				board.boardMove(x,y)
-			else:
-				print 'hehe'
-				newarr = []
-				str1 = data.split
-				i = 0
-				for x in range(8):
-					for y in range(8):
-						newar[x][y] = str1[i]
-						i += 1
-
-				board.update_screen(newarr)
+			data,addr =udpCliSock.recvfrom(BUFSIZE)
+			str1 = data.split()
+			x = string.atoi(str1[0])
+			y = string.atoi(str1[1])
+			print x,y
+			board.boardMove(x,y)
 
 		else:
 			#Is it the player's turn?
@@ -410,21 +401,6 @@ def clickHandle(event):
 						data = 'Click'+' '+str(var.player_room_id) + ' ' + str(var.player_type) + ' ' + str(x)+ ' ' + str(y)
 						udpCliSock.sendto(data,ADDR)
 						board.boardMove(x,y)
-	else:
-		#Difficulty clicking
-		if 300<=yMouse<=350:
-			#One star
-			if 25<=xMouse<=155:
-				depth = 1
-				playGame()
-			#Two star
-			elif 180<=xMouse<=310:
-				depth = 4
-				playGame()
-			#Three star
-			elif 335<=xMouse<=465:
-				depth = 6
-				playGame()
 
 def keyHandle(event):
 	symbol = event.keysym
@@ -440,7 +416,7 @@ def keyHandle(event):
 		data,addr = udpCliSock.recvfrom(BUFSIZE)
 		
 		var.player_room_id = string.atoi(symbol.lower())
-		var.player_type = data
+		var.player_type = string.atoi(data)
 		print var.player_type
 		playGame()
 
