@@ -7,6 +7,7 @@ from random import *
 from copy import deepcopy
 from socket import *
 import string
+import var
 #Variable setup
 nodes = 0
 depth = 4
@@ -356,7 +357,7 @@ def clickHandle(event):
 	global depth
 	xMouse = event.x
 	yMouse = event.y
-	if player_type == 2:
+	if var.player_type == 2:
 		if xMouse<=50 and yMouse<=50:
 				print 'hehe'
 				newarr = []
@@ -376,7 +377,7 @@ def clickHandle(event):
 		elif xMouse<=50 and yMouse<=50:
 			#playGame()
 
-			if player_type != 2:
+			if var.player_type != 2:
 				data,addr =udpCliSock.recvfrom(BUFSIZE)
 				str1 = data.split()
 				x = string.atoi(str1[0])
@@ -406,7 +407,7 @@ def clickHandle(event):
 				#If the click is inside the bounds and the move is valid, move to that location
 				if 0<=x<=7 and 0<=y<=7:
 					if valid(board.array,board.player,x,y):
-						data = 'Click'+' '+str(player_room_id) + ' ' + str(player_type) + ' ' + str(x)+ ' ' + str(y)
+						data = 'Click'+' '+str(var.player_room_id) + ' ' + str(var.player_type) + ' ' + str(x)+ ' ' + str(y)
 						udpCliSock.sendto(data,ADDR)
 						board.boardMove(x,y)
 	else:
@@ -438,9 +439,9 @@ def keyHandle(event):
 		udpCliSock.sendto(data,ADDR)
 		data,addr = udpCliSock.recvfrom(BUFSIZE)
 		
-		player_room_id = string.atoi(symbol.lower())
-		player_type = data
-		print player_type
+		var.player_room_id = string.atoi(symbol.lower())
+		var.player_type = data
+		print var.player_type
 		playGame()
 
 def create_buttons():
@@ -499,9 +500,6 @@ def playGame():
 	board = Board()
 	board.update()
 
-global player_type , player_room_id
-player_type = 0
-player_room_id = 0
 HOST = 'localhost'
 PORT = 21567
 BUFSIZE = 1024
