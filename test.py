@@ -6,7 +6,7 @@ from time import *
 from random import *
 from copy import deepcopy
 from socket import *
-
+import string
 #Variable setup
 nodes = 0
 depth = 4
@@ -39,6 +39,7 @@ class Board:
 		#Initializing old values
 		self.oldarray = self.array
 	#Updating the board to the screen
+
 	def update(self):
 		screen.delete("highlight")
 		screen.delete("tile")
@@ -140,7 +141,10 @@ class Board:
 		
 		#Check if ai must pass
 		self.passTest()
-		self.update()	
+		self.update()
+	def update_screen(self,newarr):
+		self.oldarray = newarr
+		self.update()
 
 	#METHOD: Draws scoreboard to screen
 	def drawScoreBoard(self):
@@ -352,12 +356,44 @@ def clickHandle(event):
 	global depth
 	xMouse = event.x
 	yMouse = event.y
+	if player_type == 2:
+		if xMouse<=50 and yMouse<=50:
+				print 'hehe'
+				newarr = []
+				str1 = data.split
+				i = 0
+				for x in range(8):
+					for y in range(8):
+						newar[x][y] = str1[i]
+						i += 1
+
+				board.update_screen(newarr)
+		return
 
 	if running:
 		if xMouse>=450 and yMouse<=50:
 			root.destroy()
 		elif xMouse<=50 and yMouse<=50:
-			playGame()
+			#playGame()
+
+			if player_type != 2:
+				data,addr =udpCliSock.recvfrom(BUFSIZE)
+				str1 = data.split()
+				x = string.atoi(str1[0])
+				y = string.atoi(str1[1])
+				board.boardMove(x,y)
+			else:
+				print 'hehe'
+				newarr = []
+				str1 = data.split
+				i = 0
+				for x in range(8):
+					for y in range(8):
+						newar[x][y] = str1[i]
+						i += 1
+
+				board.update_screen(newarr)
+
 		else:
 			#Is it the player's turn?
 			#if board.player==0:
@@ -401,9 +437,10 @@ def keyHandle(event):
 		data = 'Require'+' '+symbol.lower()
 		udpCliSock.sendto(data,ADDR)
 		data,addr = udpCliSock.recvfrom(BUFSIZE)
-		global player_type , player_room_id
+		
 		player_room_id = string.atoi(symbol.lower())
 		player_type = data
+		print player_type
 		playGame()
 
 def create_buttons():
@@ -462,7 +499,9 @@ def playGame():
 	board = Board()
 	board.update()
 
-
+global player_type , player_room_id
+player_type = 0
+player_room_id = 0
 HOST = 'localhost'
 PORT = 21567
 BUFSIZE = 1024
